@@ -8,15 +8,18 @@ from finpy import *
 
 data = Fin_Data()       #Create a new data object that we will use to pull the data
 
-spy = data.pull_data('SPY','monthly','60min')
-data.save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\','SPY')
+ticker = 'SPY'
+period = 'monthly'
+interval = '60min'
 
-plotter = Plotter()
+spy = data.pull_data(ticker,period,interval)                                      #Pull data
+data.save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\','SPY')  #Save the data to csv format
 
-#plotter.bPlot(spy)
-#sp = spy.iloc[:5,[0,3]]
-#plotter.basicPlot(sp)
+plotter = Plotter() #Create plotting object
+plotter.candlePlot(spy)    #Plot the candleplot
 
-outspy = plotter.candlePlot(spy)
-
+macd = MACD()
+spy_macd = macd.create_macd(spy,5,15,3)
+plotter.plotMACD(spy)
+plotter.plotVertical(spy)
 
