@@ -9,11 +9,11 @@ from finpy import *
 data = Fin_Data()       #Create a new data object that we will use to pull the data
 
 ticker = 'SPY'
-period = 'monthly'
+period = 'intraday'
 interval = '60min'
 
 spy = data.pull_data(ticker,period,interval)                                      #Pull data
-data.save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\','SPY')  #Save the data to csv format
+save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\','SPY')  #Save the data to csv format
 
 plotter = Plotter() #Create plotting object
 plotter.candlePlot(spy)    #Plot the candleplot

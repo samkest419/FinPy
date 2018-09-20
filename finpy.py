@@ -9,7 +9,6 @@ from alpha_vantage.timeseries import TimeSeries
 import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter, WeekdayLocator,\
     DayLocator, MONDAY
-from matplotlib.finance import candlestick2_ohlc
 from bokeh.plotting import figure, output_file, show
 from bokeh.layouts import column
 import pandas as pd
@@ -70,7 +69,7 @@ class Fin_Data:               #Class name fin_data
         
         return data1
         
-    def save_data(self,df,directory,ticker):    #Saves data in the dataframe to csv format in specified directory
+def save_data(df,directory,ticker):    #Saves data in the dataframe to csv format in specified directory
         df.to_csv(directory+ticker+'.csv')
         print('CSV File Saved!\n')
 
