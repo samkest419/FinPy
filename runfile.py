@@ -6,20 +6,16 @@ Created on Sun Aug 26 17:03:59 2018
 """
 from finpy import *
 
-data = Fin_Data()       #Create a new data object that we will use to pull the data
-
 ticker = 'SPY'
 period = 'intraday'
 interval = '60min'
 
-spy = data.pull_data(ticker,period,interval)                                      #Pull data
+spy = pull_data(ticker,period,interval)                                      #Pull data
 save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\','SPY')  #Save the data to csv format
 
-plotter = Plotter() #Create plotting object
-plotter.candlePlot(spy)    #Plot the candleplot
+candlePlot(spy,period)    #Plot the candleplot
 
-macd = MACD()
-spy_macd = macd.create_macd(spy,5,15,3)
-plotter.plotMACD(spy)
-plotter.plotVertical(spy)
+spy_macd = create_macd(spy,5,15,3)
+plotMACD(spy,period)
+plotVertical(spy)
 
