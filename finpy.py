@@ -15,6 +15,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime as dt
 from bokeh.models import DatetimeTickFormatter
+import smtplib
     
     #print('New Fin. Data Object Created\n')
     
@@ -260,7 +261,6 @@ def plotVertical(df_in,period):  #Plot MACD on top of Candle Chart
         q.line(df['DT'],df.iloc[:,-7],line_color="blue")  #MACD with second span size
     
     show(column(q,p))
-    return df
            
 def create_macd(df,span1,span2,span3):
     df = df.copy(deep=True)
@@ -271,6 +271,14 @@ def create_macd(df,span1,span2,span3):
     df['crossover_{}_{}'.format(span1,span2)] = df['macd_{}_{}'.format(span1,span2)] - df['signal_{}_{}'.format(span1,span2)] # means, if this is > 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] > 0, there is a buy signal                                                                     # means, if this is < 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] < 0, there is a sell signal
     return df
            
-           
+def emailSignal(to_address,df): 
+    curr_time = str(dt.now())
+    latest_signal = df.iloc[-1,-1]
+    message = str(df.iloc[-1,:])
+    conn = smtplib.SMTP('smtp.gmail.com',587)
+    conn.ehlo()
+    conn.starttls()
+    conn.login('Rich.Sam.Signals@gmail.com','n3wp34f$!')
+    conn.sendmail('Rich.Sam.Signals@gmail.com',to_address,'Subject: SPY Signal {}\n\n{} SPY\n{}'.format(curr_time,latest_signal,message))
            
         
