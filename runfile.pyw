@@ -21,7 +21,7 @@ while True:
     #candlePlot(spy,period)    #Plot the candleplot
     
     spy_macd = create_macd(spy,5,25,3)
-    #plotMACD(spy_macd,period)
+    plotMACD(spy_macd,period)
     
     #plotVertical(spy_macd,period)
     

@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Aug 31 10:08:20 2018
+Created on Fri Sep 28 08:19:39 2018
 
 @author: Richard Hardis
 """
 
-import pandas as pd
-from datetime import datetime as dt
-from bokeh.models import DatetimeTickFormatter
-from bokeh.plotting import figure, output_file, show
+import time
+from finpy import *
 
-df = pd.DataFrame(data=[1,2,3],
-                  index=[dt(2015,1,1), dt(2015,1,2), dt(2015,1,3)],
-                  columns=['foo'])
-p = figure(plot_width=400, plot_height=400)
-p.line(df.index, df['foo'])
-p.xaxis.formatter=DatetimeTickFormatter(
-        hours=["%d %B %Y"],
-        days=["%d %B %Y"],
-        months=["%d %B %Y"],
-        years=["%d %B %Y"],
-    )
-p.xaxis.major_label_orientation = .5
-output_file('myplot.html')
-show(p)
+ticker = 'SPY'
+period = 'intraday'
+interval = '1min'
+t_wait = 60 #interval in seconds
+
+span1 = 5
+span2 = 25
+span3 = 3
+
+while True:
+    spy = pull_data(ticker,period,interval) 
+    spy_macd = create_macd(spy,span1,span2,span3)
+    stratout = macdStrat(spy_macd,period,interval)
+    emailSignal('richardphardis@gmail.com',stratout)
+    time.sleep(t_wait)

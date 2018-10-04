@@ -264,11 +264,11 @@ def plotVertical(df_in,period):  #Plot MACD on top of Candle Chart
            
 def create_macd(df,span1,span2,span3):
     df = df.copy(deep=True)
-    df['stock_{}_ema'.format(span1)] = pd.ewma(df['Close'], span=span1)
-    df['stock_{}_ema'.format(span2)] = pd.ewma(df['Close'], span=span2)
-    df['macd_{}_{}'.format(span1,span2)] = df['stock_{}_ema'.format(span1)] - df['stock_{}_ema'.format(span2)]
-    df['signal_{}_{}'.format(span1,span2)] = pd.ewma(df['macd_{}_{}'.format(span1,span2)], span=span3)
-    df['crossover_{}_{}'.format(span1,span2)] = df['macd_{}_{}'.format(span1,span2)] - df['signal_{}_{}'.format(span1,span2)] # means, if this is > 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] > 0, there is a buy signal                                                                     # means, if this is < 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] < 0, there is a sell signal
+    df['stock_fast_ema'] = pd.ewma(df['Close'], span=span1)
+    df['stock_slow_ema'] = pd.ewma(df['Close'], span=span2)
+    df['macd'] = df['stock_fast_ema'] - df['stock_slow_ema']
+    df['signal'] = pd.ewma(df['macd'], span=span3)
+    df['crossover'] = df['macd'] - df['signal'] # means, if this is > 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] > 0, there is a buy signal                                                                     # means, if this is < 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] < 0, there is a sell signal
     return df
            
 def emailSignal(to_address,df): 
@@ -279,6 +279,6 @@ def emailSignal(to_address,df):
     conn.ehlo()
     conn.starttls()
     conn.login('Rich.Sam.Signals@gmail.com','n3wp34f$!')
-    conn.sendmail('Rich.Sam.Signals@gmail.com',to_address,'Subject: SPY Signal {}\n\n{} SPY\n{}'.format(curr_time,latest_signal,message))
+    conn.sendmail('Rich.Sam.Signals@gmail.com',to_address,'Subject: SPY Signal {}\n\n{} SPY\n\n{}'.format(curr_time,latest_signal,message))
            
         
