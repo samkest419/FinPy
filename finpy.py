@@ -281,4 +281,12 @@ def emailSignal(to_address,df):
     conn.login('Rich.Sam.Signals@gmail.com','n3wp34f$!')
     conn.sendmail('Rich.Sam.Signals@gmail.com',to_address,'Subject: SPY Signal {}\n\n{} SPY\n\n{}'.format(curr_time,latest_signal,message))
            
-        
+def is_new(df):
+    #Compare the latest state of the dataframe to the current time.  If the dataframe time is over a minute before the dataframe time then signal not new data.
+    last_call = dt.strptime(df.index[-1], '%Y-%m-%d')
+    print(last_call)
+    now = dt.now()
+    print('Delta:\n')
+    print(now-last_call)
+    state = 'T'
+    return state 

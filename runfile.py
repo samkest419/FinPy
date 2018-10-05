@@ -7,7 +7,7 @@ Created on Sun Aug 26 17:03:59 2018
 import time
 
 from finpy import *
-from strategies import macdStrat
+from strategies import macdStrat, chaikinMFStrat
 
 ticker = 'SPY'
 period = 'daily'
@@ -29,4 +29,8 @@ stratout = macdStrat(spy_macd.iloc[:,:],period,interval)
 
 #emailSignal('richardphardis@gmail.com',stratout)
 
-buys = stratout[stratout['trade']=='Buy']
+buys = stratout[stratout['macd_trade']=='Buy']
+
+is_new(stratout)
+
+chaikin = chaikinMFStrat(spy_macd,period,interval,window=20)
