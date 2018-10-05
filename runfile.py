@@ -7,30 +7,34 @@ Created on Sun Aug 26 17:03:59 2018
 import time
 
 from finpy import *
-from strategies import macdStrat, chaikinMFStrat
+from strategies import macdStrat, chaikinMFStrat, oversold30min
 
 ticker = 'SPY'
-period = 'daily'
-interval = '1min'
+period = 'intraday'
+interval = '30min'
 
 
 spy = pull_data(ticker,period,interval)                                      #Pull data
 
-save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\','SPY')  #Save the data to csv format
+#save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\','SPY')  #Save the data to csv format
 
 #candlePlot(spy,period)    #Plot the candleplot
 
-spy_macd = create_macd(spy,3,6,2)
-#plotMACD(spy_macd,period)
+spy_macd362 = create_macd(spy,3,6,2)
+#plotMACD(spy_macd362,period)
+spy_macd5153 = create_macd(spy,5,15,3)
+#plotMACD(spy_macd5153,period)
 
 #plotVertical(spy_macd,period)
 
-stratout = macdStrat(spy_macd.iloc[:,:],period,interval)
+stratout362 = macdStrat(spy_macd362,period,interval,-.5)
+stratout5153 = macdStrat(spy_macd5153,period,interval,-.5)
 
 #emailSignal('richardphardis@gmail.com',stratout)
 
-buys = stratout[stratout['macd_trade']=='Buy']
+#buys = stratout[stratout['macd_trade']=='Buy']
 
-is_new(stratout)
+#is_new(stratout)
+condition = oversold30min(stratout362,stratout5153)
 
-chaikin = chaikinMFStrat(spy_macd,period,interval,window=20)
+#chaikin = chaikinMFStrat(spy_macd362,period,interval,window=20)
