@@ -76,7 +76,6 @@ def plotMACD(df_in,period):
     df = df_in.copy(deep=True)
     
     output_file("fig2.html")
-
     if period == 'intraday':
         df = df.reset_index(drop=True)
         p = figure(plot_width=1400, plot_height=700,y_axis_type="log",title='Intraday MACD')
@@ -91,6 +90,26 @@ def plotMACD(df_in,period):
         p.line(df['DT'],df.iloc[:,-5],line_color="red")  #Stock MA with first span size
         p.line(df['DT'],df.iloc[:,-4],line_color="blue")  #Stock MA with second span size
     
+    show(p)
+    
+def plotCMFMACD(df_in,period):
+    df = df_in.copy(deep=True)
+    
+    output_file("fig5.html")
+    if period == 'intraday':
+        df = df.reset_index(drop=True)
+        p = figure(plot_width=1400, plot_height=700,title='Intraday CMF MACD')
+        p.line(df.index,df['Period CMF'],line_color="black",legend="CMF")    #Closing values
+        p.line(df.index,df['mf_fast_ema'],line_color="red",legend="Fast")  #Stock MA with first span size
+        p.line(df.index,df['mf_slow_ema'],line_color="blue",legend="Slow")  #Stock MA with second span size
+        p.xaxis.axis_label = "Intraday Intervals"
+    else:
+        p = figure(x_axis_type="datetime",plot_width=1400, plot_height=700,title=None)
+        
+        p.line(df['DT'],df['Period CMF'],line_color="black")    #Closing values
+        p.line(df['DT'],df['mf_fast_ema'],line_color="red")  #Stock MA with first span size
+        p.line(df['DT'],df['mf_slow_ema'],line_color="blue")  #Stock MA with second span size
+        
     show(p)
 
 def candlePlot(df_in,period):
@@ -270,6 +289,21 @@ def create_macd(df,span1,span2,span3):
     df['signal'] = pd.ewma(df['macd'], span=span3)
     df['crossover'] = df['macd'] - df['signal'] # means, if this is > 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] > 0, there is a buy signal                                                                     # means, if this is < 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] < 0, there is a sell signal
     return df
+
+def create_cmfmacd(df,span1,span2,span3,window):
+    df = df.copy(deep=True)
+    df['mf_multiplier'] = ((df['Close'] - df['Low']) - (df['High'] - df['Close'])) / (df['High'] - df['Low'])
+    df['mf_volume'] = df['mf_multiplier'] * df['Volume']
+    
+    # calculate 20 period CMF for last 20 periods, using rolling.sum()
+    # 20-period CMF = 20-period Sum of Money Flow Volume / 20 period Sum of Volume
+    df['Period CMF'] = df['mf_volume'].rolling(min_periods=1, window=window).sum() / df['Volume'].rolling(min_periods=1, window=window).sum()
+    df['mf_fast_ema'] = pd.ewma(df['Period CMF'], span=span1)
+    df['mf_slow_ema'] = pd.ewma(df['Period CMF'], span=span2)
+    df['cmf_macd'] = df['mf_fast_ema'] - df['mf_slow_ema']
+    df['cmf_signal'] = pd.ewma(df['cmf_macd'], span=span3)
+    df['cmf_crossover'] = df['cmf_macd'] - df['cmf_signal'] # means, if this is > 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] > 0, there is a buy signal                                                                     # means, if this is < 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] < 0, there is a sell signal
+    return df 
            
 def emailSignal(to_address,df): 
     curr_time = str(dt.now())

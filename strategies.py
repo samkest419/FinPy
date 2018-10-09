@@ -70,22 +70,11 @@ def oversold30min(df362,df5153,df8217):
 
 def chaikinMFStrat(df,period,interval,window):
     df = df.copy(deep=True)
-    # Chaikin Money Flow Indicator (CMF)
-
-    df['mf_multiplier'] = ((df['Close'] - df['Low']) - (df['High'] - df['Close'])) / (df['High'] - df['Low'])
-    df['mf_volume'] = df['mf_multiplier'] * df['Volume']
-    
-    # calculate 20 period CMF for last 20 periods, using rolling.sum()
-    # 20-period CMF = 20-period Sum of Money Flow Volume / 20 period Sum of Volume
-    df['Period CMF'] = df['mf_volume'].rolling(min_periods=1, window=window).sum() / df['Volume'].rolling(min_periods=1, window=window).sum()
-    
+    # Chaikin Money Flow Indicator (CMF)  
     
     df['Buy 1'] = df['macd'][-10:] < -0.5 # fast line was less than -0.5 in the last 10 period. THis used to be 3-6
-    
     df['Buy 2'] = df['crossover'] > 0 # fast line crossed above slow line
-    
     df['Buy 3'] = df['Period CMF'] <  -0.5
-    
     df['BUY'] = df['Buy 1'] + df['Buy 2']
     
     
