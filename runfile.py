@@ -5,6 +5,9 @@ Created on Sun Aug 26 17:03:59 2018
 @author: Richard Hardis
 """
 import time
+import numpy as np
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 from finpy import *
 from strategies import macdStrat, chaikinMFStrat, oversold30min
@@ -25,6 +28,7 @@ spy_macd362 = create_macd(spy,3,6,2)
 spy_macd5153 = create_macd(spy,5,15,3)
 #plotMACD(spy_macd5153,period)
 spy_macd8217 = create_macd(spy,8,21,7)
+#plotMACD(spy_macd8217,period)
 
 #plotVertical(spy_macd,period)
 
@@ -37,6 +41,18 @@ stratout8217 = macdStrat(spy_macd8217,period,interval,-.5)
 #buys = stratout[stratout['macd_trade']=='Buy']
 
 #is_new(stratout)
-condition = oversold30min(stratout362,stratout5153,stratout8217)
+#condition = oversold30min(stratout362,stratout5153,stratout8217)
+cmfFast = create_cmf(spy,8)
+cmfSlow = create_cmf(spy,21)
+cmfMACD = create_cmfmacd(cmfFast,cmfSlow,7)
+#plotCMFMACD(cmfMACD,period)
+#plotCMFMACD(cmf362,period)
+#plotCMFMACD(cmf5153,period)
+#plotCMFMACD(cmf8217,period)
 
-#chaikin = chaikinMFStrat(spy_macd362,period,interval,window=20)
+x = np.arange(0,len(cmfMACD.index))
+y1 = cmfMACD['Close']
+y2 = cmfMACD['CMF MACD']
+y3 = cmfMACD['CMF Signal']
+
+plotMultiY(x,y1,y2) #Only accepts three arguments right now

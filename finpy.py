@@ -9,12 +9,14 @@ from alpha_vantage.timeseries import TimeSeries
 import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter, WeekdayLocator,\
     DayLocator, MONDAY
+    
 from bokeh.plotting import figure, output_file, show
 from bokeh.layouts import column
+from bokeh.models import DatetimeTickFormatter, LinearAxis, Range1d, ColumnDataSource, HoverTool
+
 import pandas as pd
 import numpy as np
 from datetime import datetime as dt
-from bokeh.models import DatetimeTickFormatter
 import smtplib
     
     #print('New Fin. Data Object Created\n')
@@ -76,7 +78,6 @@ def plotMACD(df_in,period):
     df = df_in.copy(deep=True)
     
     output_file("fig2.html")
-
     if period == 'intraday':
         df = df.reset_index(drop=True)
         p = figure(plot_width=1400, plot_height=700,y_axis_type="log",title='Intraday MACD')
@@ -270,6 +271,98 @@ def create_macd(df,span1,span2,span3):
     df['signal'] = pd.ewma(df['macd'], span=span3)
     df['crossover'] = df['macd'] - df['signal'] # means, if this is > 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] > 0, there is a buy signal                                                                     # means, if this is < 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] < 0, there is a sell signal
     return df
+
+def create_cmf(df,window):
+    df = df.copy(deep=True)
+    df['mf_multiplier'] = ((df['Close'] - df['Low']) - (df['High'] - df['Close'])) / (df['High'] - df['Low'])
+    df['mf_volume'] = df['mf_multiplier'] * df['Volume']
+    
+    df['Period CMF'] = df['mf_volume'].rolling(min_periods=1, window=window).sum() / df['Volume'].rolling(min_periods=1, window=window).sum()
+    return df
+
+def create_cmfmacd(df_fast,df_slow,span3):
+    df_fast = df_fast.copy(deep=True)    
+    df_slow = df_slow.copy(deep=True)  
+
+    df_cmf = df_fast.copy(deep=True)
+    df_cmf = df_cmf[['Close','Volume','Period CMF']]
+    df_cmf.rename(columns={'Period CMF': 'Fast MF'}, inplace=True)
+    df_cmf['Slow MF'] = df_slow['Period CMF']
+    df_cmf['CMF MACD'] = df_cmf['Fast MF'] - df_cmf['Slow MF']
+    df_cmf['CMF Signal'] = pd.ewma(df_cmf['CMF MACD'], span = span3)
+    df_cmf['CMF Crossover'] = df_cmf['CMF MACD'] - df_cmf['CMF Signal']
+    
+    #df_cmf['mf_fast'] = df_fast['Period CMF']
+    #df['mf_slow_ema'] = pd.ewma(df['Period CMF'], span=span2)
+    #df['cmf_macd'] = df['mf_fast_ema'] - df['mf_slow_ema']
+    #df['cmf_signal'] = pd.ewma(df['cmf_macd'], span=span3)
+    #df['cmf_crossover'] = df['cmf_macd'] - df['cmf_signal'] # means, if this is > 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] > 0, there is a buy signal                                                                     # means, if this is < 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] < 0, there is a sell signal
+    return df_cmf
+
+def plotCMFMACD(df_in,period):
+    df = df_in.copy(deep=True)
+    
+    output_file("fig5.html")
+    if period == 'intraday':
+        df = df.reset_index(drop=True)
+        p = figure(plot_width=1400, plot_height=700,title='Intraday CMF MACD')
+        #p.line(df.index,df['Fast MF'],line_color="black",legend="CMF Fast")    #Closing values
+        #p.line(df.index,df['mf_fast_ema'],line_color="red",legend="CMF Slow")  #Stock MA with first span size
+        p.line(df.index,df['CMF MACD'],line_color="black",legend="MACD")  #Stock MA with second span size
+        p.line(df.index,df['CMF Signal'],line_color="blue",legend="Signal")  #Stock MA with second span size
+        p.xaxis.axis_label = "Intraday Intervals"
+    else:
+        p = figure(x_axis_type="datetime",plot_width=1400, plot_height=700,title=None)
+        
+        p.line(df['DT'],df['Period CMF'],line_color="black")    #Closing values
+        p.line(df['DT'],df['mf_fast_ema'],line_color="red")  #Stock MA with first span size
+        p.line(df['DT'],df['mf_slow_ema'],line_color="blue")  #Stock MA with second span size
+        
+    show(p)
+
+def plotMultiY(xvals, *args):
+    output_file("OverlaidMutliY.html")
+    
+    source = ColumnDataSource(data={
+            'Interval':xvals,
+            'Close':args[0],
+            'MACD':args[1],
+            })
+    
+    offset = 0.05 * (np.max(args[0])-np.min(args[0]))
+    p = figure(plot_width=1400, plot_height=700, y_range = (np.min(args[0])-offset,np.max(args[0])+offset), sizing_mode="scale_width")
+    plot1 = p.line(x='Interval',y='Close',color="black",line_width=2,source=source)
+    p.add_tools(HoverTool(
+        renderers=[plot1],
+        tooltips=[('Close', '@Close')],
+        formatters={'Close':'printf'},
+        mode='vline'
+        ))
+    
+    i=2
+    arg=args[1]    
+    colors = ["blue","red","green","orange","yellow"]
+    offset = 0.05 * (np.max(arg)-np.min(arg))
+    p.extra_y_ranges = {'Y{}'.format(i): Range1d(start=np.min(arg)-offset, end=np.max(arg)+offset)}
+    plot2 = p.line(x='Interval', y='MACD', y_range_name='Y{}'.format(i),line_width=0.5,color=colors[0],alpha=0.5, source=source)
+    p.add_layout(LinearAxis(y_range_name='Y{}'.format(i)), 'right')
+    p.add_tools(HoverTool(
+        renderers=[plot2],
+        tooltips=[('MACD', '@MACD')],
+        formatters={'MACD':'printf'},
+        mode='vline'
+        ))
+    
+    tools = 'crosshair'
+    
+    #if len(args) > 1:    
+    #    for i, arg in enumerate(args[1:]):
+    #        p.extra_y_ranges = {'Y{}'.format(i): Range1d(start=np.min(arg), end=np.max(arg))}
+    #        p.line(xvals, arg, y_range_name='Y{}'.format(i),line_width=1,color=colors[i],alpha=0.5)
+    #        p.add_layout(LinearAxis(y_range_name='Y{}'.format(i)), 'right')
+    
+
+    show(p)
            
 def emailSignal(to_address,df): 
     curr_time = str(dt.now())
