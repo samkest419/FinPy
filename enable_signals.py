@@ -28,6 +28,7 @@ while True:
     spy_macd5153 = create_macd(spy.iloc[-10:,:],span4,span5,span6)
     stratout5153 = macdStrat(spy_macd5153,period,interval,-.5)
     signal = oversold30min(stratout362,stratout5153)
+    stratout362.iloc[-1,-1] = signal
     if ((signal == 'Buy') or (signal == 'Hold')):
         emailSignal(['richardphardis@gmail.com','samkest419@gmail.com'],stratout362)
     time.sleep(t_wait)

@@ -33,9 +33,17 @@ def macdStrat(df,period,interval,low_bound):
 
     return df
 
-def oversold30min(df362,df5153):
+def sell8217(df_in):
+    df = df_in.copy(deep=True)
+    
+    df['prevMACD']
+    
+    return result
+
+def oversold30min(df362,df5153,df8217):
     df362 = df362.copy(deep=True)
     df5153 = df5153.copy(deep=True)
+    df8217 = df8217.copy(deep=True)
     
     #Hold the last non-hold signal over the past ten periods
     list362 = list(df362.iloc[-10:,-1])
@@ -47,8 +55,13 @@ def oversold30min(df362,df5153):
         
     result5153 = df5153.iloc[-1,-1]
     
-    if ((result362 == 'Buy') and (result5153 == 'Buy')):
+    #if True:
+    result8217 = df8217.iloc[-1,1]
+    
+    if (((result362 == 'Buy') and (result5153 == 'Buy')) and not (result8217 == 'Sell')):
         result = 'Buy'
+    elif (((result362 != 'Buy') and (result5153 != 'Buy')) and (result8217 == 'Sell')):
+        result = 'Sell'
     else:
         result = 'Hold'
     
