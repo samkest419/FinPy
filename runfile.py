@@ -5,6 +5,7 @@ Created on Sun Aug 26 17:03:59 2018
 @author: Richard Hardis
 """
 import time
+import numpy as np
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -41,10 +42,17 @@ stratout8217 = macdStrat(spy_macd8217,period,interval,-.5)
 
 #is_new(stratout)
 #condition = oversold30min(stratout362,stratout5153,stratout8217)
-cmf362 = create_cmfmacd(spy,3,6,2,window=20)
-plotCMFMACD(cmf362,period)
-cmf5153 = create_cmfmacd(spy,5,15,3,window=20)
-plotCMFMACD(cmf5153,period)
-cmf8217 = create_cmfmacd(spy,8,21,7,window=20)
-plotCMFMACD(cmf8217,period)
-#chaikin = chaikinMFStrat(spy_macd362,period,interval,window=20)
+cmfFast = create_cmf(spy,8)
+cmfSlow = create_cmf(spy,21)
+cmfMACD = create_cmfmacd(cmfFast,cmfSlow,7)
+#plotCMFMACD(cmfMACD,period)
+#plotCMFMACD(cmf362,period)
+#plotCMFMACD(cmf5153,period)
+#plotCMFMACD(cmf8217,period)
+
+x = np.arange(0,len(cmfMACD.index))
+y1 = cmfMACD['Close']
+y2 = cmfMACD['CMF MACD']
+y3 = cmfMACD['CMF Signal']
+
+plotMultiY(x,y1,y2) #Only accepts three arguments right now
