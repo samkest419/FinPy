@@ -28,7 +28,7 @@ spy_macd362 = create_macd(spy,3,6,2)
 spy_macd5153 = create_macd(spy,5,15,3)
 #plotMACD(spy_macd5153,period)
 spy_macd8217 = create_macd(spy,8,21,7)
-#plotMACD(spy_macd8217,period)
+rdf = plotMACD(spy_macd8217,period)
 
 #plotVertical(spy_macd,period)
 
@@ -55,4 +55,4 @@ y1 = cmfMACD['Close']
 y2 = cmfMACD['CMF MACD']
 y3 = cmfMACD['CMF Signal']
 
-plotMultiY(x,y1,y2) #Only accepts three arguments right now
+#plotMultiY(x,y1,y2) #Only accepts three arguments right now
