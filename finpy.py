@@ -73,27 +73,6 @@ def save_data(df,directory,ticker):    #Saves data in the dataframe to csv forma
         df.to_csv(directory+ticker+'.csv')
         print('CSV File Saved!\n')
 
-
-def plotMACD(df_in,period):
-    df = df_in.copy(deep=True)
-    
-    output_file("fig2.html")
-    if period == 'intraday':
-        df = df.reset_index(drop=True)
-        p = figure(plot_width=1400, plot_height=700,y_axis_type="log",title='Intraday MACD')
-        p.line(df.index,df['Close'],line_color="black")    #Closing values
-        p.line(df.index,df.iloc[:,-5],line_color="red")  #Stock MA with first span size
-        p.line(df.index,df.iloc[:,-4],line_color="blue")  #Stock MA with second span size
-        p.xaxis.axis_label = "Intraday Intervals"
-    else:
-        p = figure(x_axis_type="datetime",plot_width=1400, plot_height=700,y_axis_type="log",title=None)
-        
-        p.line(df['DT'],df['Close'],line_color="black")    #Closing values
-        p.line(df['DT'],df.iloc[:,-5],line_color="red")  #Stock MA with first span size
-        p.line(df['DT'],df.iloc[:,-4],line_color="blue")  #Stock MA with second span size
-    
-    show(p)
-
 def candlePlot(df_in,period):
     df = df_in.copy(deep=True)
     
@@ -360,9 +339,51 @@ def plotMultiY(xvals, *args):
     #        p.extra_y_ranges = {'Y{}'.format(i): Range1d(start=np.min(arg), end=np.max(arg))}
     #        p.line(xvals, arg, y_range_name='Y{}'.format(i),line_width=1,color=colors[i],alpha=0.5)
     #        p.add_layout(LinearAxis(y_range_name='Y{}'.format(i)), 'right')
+    show(p)
+
+def plotMACD(df_in,period):
+    df = df_in.copy(deep=True)    
+    output_file("MACD.html")
     
+    arg = df.Close
+    offset = 0.05 * (np.max(arg)-np.min(arg))
+    
+    if period == 'intraday':
+        df = df.reset_index(drop=True)
+        df['DT'] = df.index
+        p = figure(plot_width=1400, plot_height=700, y_range = (np.min(arg)-offset,np.max(arg)+offset),title='Intraday MACD', sizing_mode="scale_width")
+        #
+        p.xaxis.axis_label = "Intraday Intervals"
+    else:
+        p = figure(x_axis_type="datetime",plot_width=1400, plot_height=700, y_range = (np.min(arg)-offset,np.max(arg)+offset),title=None, sizing_mode="scale_width")
+        #,y_axis_type="log"
+    source = ColumnDataSource(data=df)
+    
+    plot1 = p.line(x='DT',y='Close',line_color="blue", legend="Close Price", source=source)    #Closing values
+    p.add_tools(HoverTool(
+        renderers=[plot1],
+        tooltips=[('Close', '@Close'),('Time','@DT')],
+        formatters={'Close':'printf'},
+        mode='vline'
+        ))
+
+    arg = df.macd
+    offset = 0.05 * (np.max(arg) - np.min(arg))
+    p.extra_y_ranges = {'Y2': Range1d(start=np.min(arg)-offset, end=offset*20*5)}  
+    plot2 = p.line(x='DT', y ='crossover', y_range_name='Y2', line_color="red", legend="MACD Cross Value", source=source)
+    p.add_layout(LinearAxis(y_range_name='Y2'), 'right')
+    p.line(x='DT',y='macd',line_color="black", y_range_name='Y2', alpha=0.25, source=source)
+    p.line(x='DT',y='signal',line_color="black", y_range_name='Y2', line_dash='dashed', alpha=0.25, source=source)
+    p.line(x='DT', y=0, line_color="black",y_range_name='Y2', source=source)
+    p.add_tools(HoverTool(
+        renderers=[plot2],
+        tooltips=[('Crossover', '@crossover'),('Time','@DT')],
+        formatters={'Crossover':'printf'},
+        mode='vline'
+        ))
 
     show(p)
+    return df
            
 def emailSignal(to_address,df): 
     curr_time = str(dt.now())
