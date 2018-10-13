@@ -14,12 +14,13 @@ from strategies import macdStrat, chaikinMFStrat, oversold30min
 
 ticker = 'SPY'
 period = 'intraday'
-interval = '30min'
+interval = '1min'
 
 
 spy = pull_data(ticker,period,interval)                                      #Pull data
 
-#save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\','SPY')  #Save the data to csv format
+save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\',
+          'M1_SPY')  #Save the data to csv format
 
 #candlePlot(spy,period)    #Plot the candleplot
 
@@ -28,7 +29,7 @@ spy_macd362 = create_macd(spy,3,6,2)
 spy_macd5153 = create_macd(spy,5,15,3)
 #plotMACD(spy_macd5153,period)
 spy_macd8217 = create_macd(spy,8,21,7)
-rdf = plotMACD(spy_macd8217,period)
+#rdf = plotMACD(spy_macd8217.iloc[-60:,:],period)
 
 #plotVertical(spy_macd,period)
 
