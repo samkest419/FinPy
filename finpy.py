@@ -242,41 +242,6 @@ def plotVertical(df_in,period):  #Plot MACD on top of Candle Chart
     
     show(column(q,p))
            
-def create_macd(df,span1,span2,span3):
-    df = df.copy(deep=True)
-    df['stock_fast_ema'] = pd.ewma(df['Close'], span=span1)
-    df['stock_slow_ema'] = pd.ewma(df['Close'], span=span2)
-    df['macd'] = df['stock_fast_ema'] - df['stock_slow_ema']
-    df['signal'] = pd.ewma(df['macd'], span=span3)
-    df['crossover'] = df['macd'] - df['signal'] # means, if this is > 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] > 0, there is a buy signal                                                                     # means, if this is < 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] < 0, there is a sell signal
-    return df
-
-def create_cmf(df,window):
-    df = df.copy(deep=True)
-    df['mf_multiplier'] = ((df['Close'] - df['Low']) - (df['High'] - df['Close'])) / (df['High'] - df['Low'])
-    df['mf_volume'] = df['mf_multiplier'] * df['Volume']
-    
-    df['Period CMF'] = df['mf_volume'].rolling(min_periods=1, window=window).sum() / df['Volume'].rolling(min_periods=1, window=window).sum()
-    return df
-
-def create_cmfmacd(df_fast,df_slow,span3):
-    df_fast = df_fast.copy(deep=True)    
-    df_slow = df_slow.copy(deep=True)  
-
-    df_cmf = df_fast.copy(deep=True)
-    df_cmf = df_cmf[['Close','Volume','Period CMF']]
-    df_cmf.rename(columns={'Period CMF': 'Fast MF'}, inplace=True)
-    df_cmf['Slow MF'] = df_slow['Period CMF']
-    df_cmf['CMF MACD'] = df_cmf['Fast MF'] - df_cmf['Slow MF']
-    df_cmf['CMF Signal'] = pd.ewma(df_cmf['CMF MACD'], span = span3)
-    df_cmf['CMF Crossover'] = df_cmf['CMF MACD'] - df_cmf['CMF Signal']
-    
-    #df_cmf['mf_fast'] = df_fast['Period CMF']
-    #df['mf_slow_ema'] = pd.ewma(df['Period CMF'], span=span2)
-    #df['cmf_macd'] = df['mf_fast_ema'] - df['mf_slow_ema']
-    #df['cmf_signal'] = pd.ewma(df['cmf_macd'], span=span3)
-    #df['cmf_crossover'] = df['cmf_macd'] - df['cmf_signal'] # means, if this is > 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] > 0, there is a buy signal                                                                     # means, if this is < 0, or stock_df['Crossover'] =  stock_df['MACD'] - stock_df['Signal'] < 0, there is a sell signal
-    return df_cmf
 
 def plotCMFMACD(df_in,period):
     df = df_in.copy(deep=True)

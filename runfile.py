@@ -10,17 +10,18 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 from finpy import *
-from strategies import macdStrat, chaikinMFStrat, oversold30min
+from strategies import *
+#from Backtest import applyStrat
 
 ticker = 'SPY'
 period = 'intraday'
-interval = '1min'
+interval = '30min'
 
 
 spy = pull_data(ticker,period,interval)                                      #Pull data
 
-save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\',
-          'M1_SPY')  #Save the data to csv format
+#save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\',
+#          'M1_SPY')  #Save the data to csv format
 
 #candlePlot(spy,period)    #Plot the candleplot
 
@@ -57,3 +58,5 @@ y2 = cmfMACD['CMF MACD']
 y3 = cmfMACD['CMF Signal']
 
 #plotMultiY(x,y1,y2) #Only accepts three arguments right now
+btest = backTest30Min(spy, period, interval, -.5, 10)
+ops_only = btest[btest['trade_signal'] != 'Hold']
