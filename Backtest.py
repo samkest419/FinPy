@@ -70,6 +70,7 @@ def try30Min(initial_investment):
     checker = checker.iloc[:,[3,-2,-1]]
     
     return total_value, checker
+    
 
 initial = 1000
 tot_val, df = try30Min(initial)

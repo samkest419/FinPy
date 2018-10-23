@@ -348,7 +348,7 @@ def plotMACD(df_in,period):
         ))
 
     show(p)
-    return df
+    return df, p
            
 def emailSignal(to_address,df): 
     curr_time = str(dt.now())
@@ -369,3 +369,26 @@ def is_new(df):
     print(now-last_call)
     state = 'T'
     return state 
+
+def macdHistogram(df_in):
+    df = df_in.copy(deep=True)
+    output_file("MACDHistogram.html")
+    hist, edges = np.histogram(df['macd'], density=True, bins=30)
+    p = figure(title='MACD Histogram', sizing_mode='scale_both', background_fill_color = "#E8DDCB")
+    p.quad(top = hist , bottom = 0, left = edges[:-1], right = edges[1:], fill_color = "#036564", line_color = "#033649")
+    
+    minMACD = np.min(df.macd)
+    maxMACD = np.max(df.macd)
+    mu = np.mean(df.macd)
+    sigma = np.std(df.macd)
+    x = np.linspace(minMACD,maxMACD,1000)
+    pdf = 1/(sigma * np.sqrt(2*np.pi)) * np.exp(-(x-mu)**2 / (2*sigma**2))       
+    p.line(x, pdf, line_color="#D95B43", line_width=2, alpha=0.7, legend="PDF")
+    
+    p.ray(x=[-1*sigma, sigma], y=[0,0], length=50, angle=90, angle_units="deg", color="blue", line_width=1)
+    p.ray(x=[-2*sigma, 2*sigma], y=[0,0], length=50, angle=90, angle_units="deg", color="red", line_width=1)
+    p.ray(x=[-3*sigma, 3*sigma], y=[0,0], length=50, angle=90, angle_units="deg", color="green", line_width=1)
+    p.ray(x=0,y=0,length=50,angle=90,angle_units="deg",color="black",line_width=2)     
+    show(p)      
+           
+    

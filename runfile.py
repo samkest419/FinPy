@@ -30,7 +30,7 @@ spy_macd362 = create_macd(spy,3,6,2)
 spy_macd5153 = create_macd(spy,5,15,3)
 #plotMACD(spy_macd5153,period)
 spy_macd8217 = create_macd(spy,8,21,7)
-#rdf = plotMACD(spy_macd8217.iloc[-60:,:],period)
+#rdf, figure = plotMACD(spy_macd8217.iloc[-60:,:],period)
 
 #plotVertical(spy_macd,period)
 
@@ -60,3 +60,5 @@ y3 = cmfMACD['CMF Signal']
 #plotMultiY(x,y1,y2) #Only accepts three arguments right now
 btest = backTest30Min(spy, period, interval, -.5, 10)
 ops_only = btest[btest['trade_signal'] != 'Hold']
+
+macdHistogram(spy_macd362)
