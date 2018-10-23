@@ -154,7 +154,3 @@ def chaikinMFStrat(df,period,interval,window):
     
     return df
 
-class Strategy:
-    """
-    Strategy object containing instructions on how to interpret market data and produce buy and sell signals
-    """
