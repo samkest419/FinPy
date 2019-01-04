@@ -66,7 +66,10 @@ def pull_data(ticker,pullType,interval='0',key='1RJDU8R6RESLVE09'):
         print('Please enter a valid pull type')
         
     print('Data collected in dataframe data1\n')
-    data1['DT'] = pd.to_datetime(data1.index)
+    data1['DT'] = data1.index
+    print(type(data1.DT[0]))
+    #data1['DT'] = pd.to_datetime(data1.index)
+    #data1['DT'] = data1.DT.strftime('%Y/%d/%m/%H/%M')
     return data1
         
 def save_data(df,directory,ticker):    #Saves data in the dataframe to csv format in specified directory

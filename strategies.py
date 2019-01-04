@@ -7,6 +7,8 @@ Created on Tue Sep 25 18:40:01 2018
 #import pandas as pd
 import numpy as np
 import pandas as pd
+from scipy import fftpack
+import matplotlib.pyplot as plt
 
 
 #Strategy 1: Pure MACD - no Chaikin MF
@@ -153,4 +155,40 @@ def chaikinMFStrat(df,period,interval,window):
     df['SELL'] = df['Sell 1'] + df['Sell 2']
     
     return df
+
+def ichimoku(df, tenkan_span, kijun_span, senkou_b_span):
+    #input a dataframe with price data
+    df = df.copy(deep=True)
+    
+    #Calculate tenkan-sen 
+    df['Tenkan'] = (df.High.rolling(min_periods=1, window=tenkan_span).max() + df.Low.rolling(min_periods=1, window=tenkan_span).min())/2
+    df['Kijun'] = (df.High.rolling(min_periods=1, window=kijun_span).max() + df.Low.rolling(min_periods=1, window=kijun_span).min())/2
+    df['Senkou_A'] = (df.Kijun + df.Tenkan)/2
+    df['Senkou_B'] = (df.High.rolling(min_periods=1, window=senkou_b_span).max() + df.Low.rolling(min_periods=1, window=senkou_b_span).min())/2
+    df['Chikou'] = df.Close
+    df['Leading_Diff'] = df.Senkou_A - df.Senkou_B
+    df['Leading_Diff_Shifted'] = df.Leading_Diff.shift(-1)
+    df['crossover'] = list(map(crossover_val, df.Leading_Diff, df.Leading_Diff_Shifted))
+    
+    return df
+
+def crossover_val(var1, var2):
+    if var1 > 0 and var2 < 0:
+        value = 1
+    elif var1 < 0  and var2 > 0:
+        value = -1
+    else:
+        value = 0
+    
+    return value
+
+def freq_analysis(df, rate, window_min, window_max):
+    signal = df.Close
+    transformed_signal = fftpack.fft(signal)
+    freqs = fftpack.fftfreq(len(signal)) * rate
+    
+    plt.plot(freqs, np.log10((transformed_signal)))
+    plt.xlim(window_min, window_max)
+    
+    return frequency, amplitude
 
