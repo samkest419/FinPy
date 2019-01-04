@@ -392,6 +392,25 @@ def macdHistogram(df_in):
     p.ray(x=[-2*sigma, 2*sigma], y=[0,0], length=50, angle=90, angle_units="deg", color="red", line_width=1)
     p.ray(x=[-3*sigma, 3*sigma], y=[0,0], length=50, angle=90, angle_units="deg", color="green", line_width=1)
     p.ray(x=0,y=0,length=50,angle=90,angle_units="deg",color="black",line_width=2)     
-    show(p)      
+    show(p)
+
+
+def ichimoku_plot(close, conversion, base, lead_a, lead_b, lagging, conversion_span, base_span, leading_b_span):
+    periods = np.arange(0,len(lead_b))
+    output_file("IchimokuPlot.html")
+    p = figure(title='Ichi Plot. Conversion Span = {}, Base Span = {}, Leading B Span = {}'.format(conversion_span, base_span, leading_b_span),
+                plot_width=1400, plot_height=700, sizing_mode="scale_width")
+    small=0.2
+    large=3
+#    p.line(periods, conversion, color='blue', line_width=small)
+#    p.line(periods, lagging, color='green', line_width=small)
+#    p.line(periods, base, color='red', line_width=small)
+#    p.line(periods, lead_a, color='green', line_width=large)
+#    p.line(periods, lead_b, color='red', line_width=large)
+    p.multi_line([periods,periods,periods,periods,periods,periods], [conversion,base,lagging,lead_a,lead_b,close],
+                 color=['blue','red','green','green','red','black'], line_width=[small,small,small,large,large,large/2])
+#    legend = Legend(items=[
+#            LegendItem(label='')])
+    show(p)
            
     

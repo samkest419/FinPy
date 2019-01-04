@@ -156,17 +156,17 @@ def chaikinMFStrat(df,period,interval,window):
     
     return df
 
-def ichimoku(df, tenkan_span, kijun_span, senkou_b_span):
+def ichimoku(df, conversion_span, base_span, leading_b_span):
     #input a dataframe with price data
     df = df.copy(deep=True)
     
     #Calculate tenkan-sen 
-    df['Tenkan'] = (df.High.rolling(min_periods=1, window=tenkan_span).max() + df.Low.rolling(min_periods=1, window=tenkan_span).min())/2
-    df['Kijun'] = (df.High.rolling(min_periods=1, window=kijun_span).max() + df.Low.rolling(min_periods=1, window=kijun_span).min())/2
-    df['Senkou_A'] = (df.Kijun + df.Tenkan)/2
-    df['Senkou_B'] = (df.High.rolling(min_periods=1, window=senkou_b_span).max() + df.Low.rolling(min_periods=1, window=senkou_b_span).min())/2
-    df['Chikou'] = df.Close
-    df['Leading_Diff'] = df.Senkou_A - df.Senkou_B
+    df['Conversion_Line'] = (df.High.rolling(min_periods=1, window=conversion_span).max() + df.Low.rolling(min_periods=1, window=conversion_span).min())/2
+    df['Base_Line'] = (df.High.rolling(min_periods=1, window=base_span).max() + df.Low.rolling(min_periods=1, window=base_span).min())/2
+    df['Leading_A'] = (df.Conversion_Line + df.Base_Line)/2
+    df['Leading_B'] = (df.High.rolling(min_periods=1, window=leading_b_span).max() + df.Low.rolling(min_periods=1, window=leading_b_span).min())/2
+    df['Lagging'] = df.Close
+    df['Leading_Diff'] = df.Leading_A - df.Leading_B
     df['Leading_Diff_Shifted'] = df.Leading_Diff.shift(-1)
     df['crossover'] = list(map(crossover_val, df.Leading_Diff, df.Leading_Diff_Shifted))
     

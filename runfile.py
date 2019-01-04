@@ -13,11 +13,16 @@ from finpy import *
 from strategies import *
 #from Backtest import applyStrat
 ticker = 'SPY'
-period = 'monthly'
+period = 'daily'
 interval = '60min'
 
 
 spy = pull_data(ticker,period,interval)                                      #Pull data
+base_span = 26
+leading_b_span = 52
+conversion_span = 9
+ichi = ichimoku(spy, conversion_span, base_span, leading_b_span)
+ichimoku_plot(ichi.Close, ichi.Conversion_Line, ichi.Base_Line, ichi.Leading_A, ichi.Leading_B, ichi.Lagging, conversion_span, base_span, leading_b_span)
 #spy.drop(['DT','TimeDelta'],inplace=True,axis = 1)
 #spy.to_csv('C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\'+ 'M1_SPY' + '.csv',index=False)
 #save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\',
