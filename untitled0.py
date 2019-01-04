@@ -1,25 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Sep 28 08:19:39 2018
+Created on Tue Nov  6 06:43:01 2018
 
 @author: Richard Hardis
 """
 
-import time
+import pandas as pd
 from finpy import *
+import time
 
 ticker = 'SPY'
-period = 'intraday'
-interval = '1min'
-t_wait = 60 #interval in seconds
+period = 'monthly'
+interval = '60min'
+filename = 'monthly_SPY'
 
-span1 = 5
-span2 = 25
-span3 = 3
+df = pull_data(ticker,period,interval)
 
-while True:
-    spy = pull_data(ticker,period,interval) 
-    spy_macd = create_macd(spy,span1,span2,span3)
-    stratout = macdStrat(spy_macd,period,interval)
-    emailSignal('richardphardis@gmail.com',stratout)
-    time.sleep(t_wait)
+#Open the old dataset
+file_path = path + '\\' + filename + '.csv'
+old_df = pd.read_csv(file_path)
+
