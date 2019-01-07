@@ -11,18 +11,23 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 from finpy import *
 from strategies import *
+from optimizations import *
 #from Backtest import applyStrat
 ticker = 'SPY'
 period = 'daily'
 interval = '60min'
 
 
-spy = pull_data(ticker,period,interval)                                      #Pull data
-base_span = 26
-leading_b_span = 52
-conversion_span = 9
-ichi = ichimoku(spy, conversion_span, base_span, leading_b_span)
-ichimoku_plot(ichi.Close, ichi.Conversion_Line, ichi.Base_Line, ichi.Leading_A, ichi.Leading_B, ichi.Lagging, conversion_span, base_span, leading_b_span)
+#spy = pull_data(ticker,period,interval)                                      #Pull data
+#base_span = 26
+#leading_b_span = 52
+#conversion_span = 9
+#ichi = ichimoku(spy, conversion_span, base_span, leading_b_span)
+#ichimoku_plot(ichi.Close, ichi.Conversion_Line, ichi.Base_Line, ichi.Leading_A, ichi.Leading_B, ichi.Lagging, conversion_span, base_span, leading_b_span)
+
+initial = [-10,10]
+bounds = [(-10,10), (-10,10)]
+PSO(func1, initial, bounds, num_particles = 15, maxiter = 300)
 #spy.drop(['DT','TimeDelta'],inplace=True,axis = 1)
 #spy.to_csv('C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\'+ 'M1_SPY' + '.csv',index=False)
 #save_data(spy, 'C:\\Users\\Richard Hardis\\Documents\\GitHub\\FinPy\\',
