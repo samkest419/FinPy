@@ -14,7 +14,7 @@ from alpha_vantage.timeseries import TimeSeries
 
 class securityData:
     def __init__(self):
-        self.tickers = ['spy','khc','ba']
+        self.tickers = ['spy','khc','ba','mmm']
         self.macd_window = [1,1,1]
         self.stoch_window = [1,1,1]
         self.criteria = 5
