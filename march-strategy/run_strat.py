@@ -11,15 +11,19 @@ from datetime import datetime as dt
 
 from alpha_vantage.timeseries import TimeSeries
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class securityData:
     def __init__(self):
-        self.tickers = ['spy','khc','ba','mmm']
-        self.macd_window = [1,1,1]
-        self.stoch_window = [1,1,1]
-        self.criteria = 5
+        self.tickers = ['spy','khc','ba']
+        self.macd_window = [5,15,3]
+        self.stoch_window = [200,3,7]
+        self.buy_criteria = 5
+        self.sell_criteria = 95
         self.distribution_list = ['richardphardis@gmail.com', 'samkest419@gmail.com']
-        
+        self.K_window = 3
+        self.D_window = 7
 
 
 def main():
@@ -40,8 +44,8 @@ def main():
     
     
     # 4. Filter the Series based on our desired cutoff values.
-    combined_series_buy = combined_series[combined_series < sd.criteria]
-    combined_series_sell = combined_series[combined_series > sd.criteria]
+    combined_series_buy = combined_series[combined_series < sd.buy_criteria]
+    combined_series_sell = combined_series[combined_series > sd.sell_criteria]
     
     # 5. Send an email containing the list of all of the securities that match the criteria
     distribution_list = ['richardphardis@gmail.com','samkest419@gmail.com']
@@ -59,7 +63,8 @@ def main():
     print(message)
     
     for email in distribution_list:
-        email_blast(email, subject, message)
+        print('emailing')
+        #email_blast(email, subject, message)
 
     
     
@@ -84,7 +89,19 @@ def calculate_stochastic(ticker, macd_args, stoch_args):
     df_macd = create_macd(ticker_df, *macd_args)
     
     # Run some math on the ticker dataframe
-    stoch_val = 2.0
+    lookback_val = len(df_macd) if len(df_macd) < stoch_args[0] else stoch_args[0]
+    df_macd = df_macd.iloc[-lookback_val:,:]
+    max_val = df_macd.signal.max()
+    min_val = df_macd.signal.min()
+    
+    df_macd['K_200'] = (df_macd.signal - min_val) / (max_val - min_val) * 100
+    K_Full = np.mean(df_macd.K_200[-stoch_args[1]:])
+    print(K_Full)
+    
+    D_Avg = np.mean(df_macd.K_200[-stoch_args[2]:])
+    print(D_Avg)
+    
+    stoch_val = K_Full
     
     return stoch_val
 
@@ -151,8 +168,7 @@ def pull_data(ticker,pullType,interval='0',key='1RJDU8R6RESLVE09'):
         print('Pulled monthly\n')
     else:
         print('Please enter a valid pull type')
-        
-    print('Data collected in dataframe data1\n')
+
     data1['DT'] = data1.index
     
     return data1
